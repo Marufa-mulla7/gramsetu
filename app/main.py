@@ -1,4 +1,5 @@
 import datetime
+from .utils import haversine_km
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -86,3 +87,27 @@ def create_booking(data: schemas.BookingCreate, db: Session = Depends(get_db)):
         "total_cost": booking.total_cost,
         "free_after_booking": free - data.quantity_qtl,
     }
+@app.get("/storages/nearby")
+def nearby_storages(
+    lat: float,
+    lon: float,
+    radius_km: float = 50,
+    db: Session = Depends(get_db),
+):
+    storages = db.scalars(select(models.Storage)).all()
+    results = []
+    for s in storages:
+        distance = haversine_km(lat, lon, s.latitude, s.longitude)
+        if distance <= radius_km:
+            results.append(
+                {
+                    "id": s.id,
+                    "name": s.name,
+                    "district": s.district,
+                    "distance_km": round(distance, 1),
+                    "price_per_qtl_week": s.price_per_qtl_week,
+                    "temperature_c": s.temperature_c,
+                }
+            )
+    results.sort(key=lambda r: r["distance_km"])
+    return results
