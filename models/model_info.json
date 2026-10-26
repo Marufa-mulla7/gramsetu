@@ -1,0 +1,36 @@
+{
+  "features": [
+    "r7",
+    "r14",
+    "r30",
+    "dev30",
+    "dev90",
+    "vol30",
+    "season_sin",
+    "season_cos"
+  ],
+  "horizons": {
+    "7": {
+      "baseline_error_pct": 13.4,
+      "model_error_pct": 12.6,
+      "direction_accuracy_pct": 71,
+      "majority_guess_pct": 58,
+      "residual_std_log": 0.151,
+      "test_period": [
+        "2026-04-22",
+        "2026-10-18"
+      ]
+    },
+    "14": {
+      "baseline_error_pct": 20.7,
+      "model_error_pct": 16.6,
+      "direction_accuracy_pct": 82,
+      "majority_guess_pct": 53,
+      "residual_std_log": 0.2,
+      "test_period": [
+        "2026-04-15",
+        "2026-10-11"
+      ]
+    }
+  }
+}
