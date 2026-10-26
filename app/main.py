@@ -1,4 +1,5 @@
 import datetime
+from .advisor import get_advice
 from .utils import haversine_km
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy import select
@@ -111,3 +112,21 @@ def nearby_storages(
             )
     results.sort(key=lambda r: r["distance_km"])
     return results
+@app.get("/advisor/tomato")
+def tomato_advice(storage_id: int | None = None, db: Session = Depends(get_db)):
+    if storage_id is not None:
+        storage = db.get(models.Storage, storage_id)
+        if storage is None:
+            raise HTTPException(status_code=404, detail="Storage not found")
+        cost = storage.price_per_qtl_week
+        source = storage.name
+    else:
+        costs = db.scalars(select(models.Storage.price_per_qtl_week)).all()
+        if not costs:
+            raise HTTPException(status_code=404, detail="No storages available")
+        cost = sum(costs) / len(costs)
+        source = "average of all storages"
+
+    advice = get_advice(cost)
+    advice["storage_cost_used"] = {"per_qtl_week": round(cost, 1), "source": source}
+    return advice
